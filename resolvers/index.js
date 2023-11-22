@@ -109,7 +109,7 @@ exports.resolvers = {
     },
 
     async deleteUser(_, {ID}){
-      const isUserDeleted = (await UserRegister.deleteOne(ID)).deletedCount
+      const isUserDeleted = (await UserRegister.deleteOne({_id:ID})).deletedCount
       return isUserDeleted;
     },
 
