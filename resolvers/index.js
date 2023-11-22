@@ -19,7 +19,30 @@ exports.resolvers = {
   Mutation:{
     //Message
     //How to create Message 
-    async 
+    async createMessage(_,{messageInputFromUser:{title,date,author}}){
+    const createdMessage = new Message({
+      title:title,
+      createdAt:new Date().toISOString(),
+      author:author
+    });
+
+    const storeMessage = await createdMessage.save();
+
+    return await {
+      id:storeMessage.id,
+      ...storeMessage._doc
+    }
+    },
+
+    async deleteMessage(_, {ID}){
+      const messageWasDeleted = ((await Message.deleteOne(ID)).deletedCount);
+      return messageWasDeleted;
+    },
+
+    async updateMessage(_,{ID:ID,inputMessage:{title,createdAt,author}}){
+      const updatedMessage = (await Message.updateOne({_id:ID},{title:title,author:author, createdAt:createdAt})).deletedCount;
+      return updatedMessage
+    },
 
     //Recipe
     async createRecipe(parent,{recipeInput:{name,description}}){

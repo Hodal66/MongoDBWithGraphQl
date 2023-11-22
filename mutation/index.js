@@ -7,12 +7,19 @@ exports.typeDefs = gql`
   type Message {
     id: String
     title: String
-    date: String
+    createdAt: String
+    author:String
   }
   input MessageInput {
     id: String
     title: String
-    date: String
+    createdAt: String
+    author:String
+  }
+  input UpdateMessage{
+    title: String
+    createdAt: String
+    author:String
   }
 
   type Recipe{
@@ -41,6 +48,7 @@ exports.typeDefs = gql`
 
     createMessage(messageInputFromUser:MessageInput):Message!
     deleteMessage(ID:ID!):Boolean
+    updateMessage(ID:ID, inputMessage:UpdateMessage):Message!
     
   }
 `;
