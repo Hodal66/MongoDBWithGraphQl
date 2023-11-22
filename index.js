@@ -1,34 +1,17 @@
-const {ApolloServer,gql} = require("apollo-server");
-const mongoose = require("mongoose")
+const { ApolloServer } = require("apollo-server");
+const { typeDefs } = require("./mutation");
+const { resolvers } = require("./resolvers");
+const { connectToDb } = require("./database");
 
 const port = 4200;
-const MONGODB = "mongodb+srv://mhthodol:Mhthodol2023@mongodbwithgraphqlclust.syaipjm.mongodb.net/"
-const typeDefs = gql` 
-type Query{
-    hello:String
-}`
 
-const resolvers ={
-     Query:{
-        hello:()=>{
-            return console.log("Byakunze ndikubibona")
-        }
-     }
-}
+connectToDb();
 
 const Server = new ApolloServer({
-    typeDefs,
-    resolvers
+  typeDefs,
+  resolvers,
 });
-mongoose.connect(MONGODB).then(()=>{
-    console.log("Mongo Dabase Connected")
-}).then(()=>{
-    Server.listen(port,()=>{
-    console.log(`Server is running at http://localhost:${port}`)
-})
-})
 
-console.log();
-
-
-console.log("Murakoze cyane kuko ndabona byatunganye")
+Server.listen(port, (URL) => {
+  console.log(`Server is running at http://localhost:${port}`);
+});
