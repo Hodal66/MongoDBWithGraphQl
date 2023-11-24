@@ -8,6 +8,7 @@ const userRegisterSchema = new Schema({
     password:String,
     confirmPassword:String,
     createdAt:String,
+    token:String
 })
 
 module.exports = model("UserRegister",userRegisterSchema);

@@ -59,6 +59,10 @@ exports.typeDefs = gql`
     sex: String
     ages: Int
   }
+  input UserLoginInput{
+    email:String
+    password:String
+  }
 
   type Query {
     recipe(ID: ID!): Recipe
@@ -79,5 +83,6 @@ exports.typeDefs = gql`
     createNewUser(userInput:UserInput):User!
     deleteUser(ID:ID):Boolean!
     updateUser(ID:ID, UserInput:UpdateUserInput):Boolean!
+    userLogin(userInput:UserLoginInput):User!
   }
 `;
