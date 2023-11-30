@@ -4,6 +4,8 @@ const UserRegister = require("../models/UserRegister");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { ApolloError } = require("apollo-server-errors");
+const Post = require("../models/Post");
+
 exports.resolvers = {
   Query: {
     //Query on Message
@@ -25,14 +27,26 @@ exports.resolvers = {
     //Query on Users
     //Registered User
 
-    async getAllUsers(_, { numberOfUsers }) {
-      return await UserRegister.find()
-        .sort({ createdAt: -1 })
-        .limit(numberOfUsers);
+    async getAllUsers(_, { args }) {
+      const result = await UserRegister.find({
+
+      });
+      return result;
     },
-    async getOneUser(_, { ID }) {
-      return await UserRegister.findOne(ID);
+    async getOneUser(_,{ID}) {
+      const oneUser= await UserRegister.findById(ID);
+      return oneUser;
     },
+    //posts
+    async getAllPosts() {
+      const posts = await Post.find({});
+      return posts;
+    },
+    //Get one post
+    async getOnePost(_,{ID}){
+      const myPost = await Post.findById(ID);
+      return myPost;
+    }
   },
   Mutation: {
     //Message
@@ -116,34 +130,41 @@ exports.resolvers = {
       }
       //Create hashed pasword
       if (password !== confirmPassword) {
-        throw new ApolloError("User confirmation Password Doesn't Much Please Verify well");
+        throw new ApolloError(
+          "User confirmation Password Doesn't Much Please Verify well"
+        );
       }
       let hashedPassword = await bcrypt.hash(password, 10);
       let hashedConfirmPassword = await bcrypt.hash(confirmPassword, 10);
 
       // create Token
-     const newTocken = jwt.sign({
-      user_id:UserRegister._id, email
-     },"UNSAFE_STRING",{expiresIn:'2h'});
+      let newTocken = jwt.sign(
+        {
+          user_id: UserRegister._id,
+          email,
+        },
+        "UNSAFE_STRING",
+        { expiresIn: "2h" }
+      );
 
-  
-        const newCreatedUser = new UserRegister({
-          fullName: fullName,
-          email: email.toLowerCase(),
-          password: hashedPassword,
-          confirmPassword: hashedConfirmPassword,
-          sex: sex,
-          ages: ages,
-          createdAt: new Date().toISOString(),
-          token:newTocken,
-        });
+      const newCreatedUser = new UserRegister({
+        fullName: fullName,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        confirmPassword: hashedConfirmPassword,
+        sex: sex,
+        ages: ages,
+        createdAt: new Date().toISOString(),
+        token: newTocken,
+      });
 
-        const savedRegisteredUser = await newCreatedUser.save();
+      const savedRegisteredUser = await newCreatedUser.save();
+      console.log("This is the database :", savedRegisteredUser);
 
-        return {
-          id: savedRegisteredUser.id,
-          ...savedRegisteredUser._doc,
-        };
+      return {
+        id: savedRegisteredUser.id,
+        ...savedRegisteredUser._doc,
+      };
     },
 
     async deleteUser(_, { ID }) {
@@ -173,6 +194,53 @@ exports.resolvers = {
         )
       ).modifiedCount;
       return isUserUpdated;
+    },
+    async userLogin(_, { userInput: { email, password } }) {
+      //check if user is already exist in the database
+      const checkIfUserExist = await UserRegister.findOne({ email });
+      console.log(checkIfUserExist);
+      console.log("Entered Password is:", password);
+      if (
+        checkIfUserExist &&
+        (await bcrypt.compare(password, checkIfUserExist.password))
+      ) {
+        // create new token
+        let newTocken = jwt.sign(
+          {
+            user_id: checkIfUserExist._id,
+            email,
+          },
+          "UNSAFE_STRING",
+          { expiresIn: "2h" }
+        );
+
+        checkIfUserExist.token = newTocken;
+
+        return {
+          id: checkIfUserExist.id,
+          ...checkIfUserExist._doc,
+        };
+      } else {
+        return new ApolloError(
+          "Wrong Username or Password!!",
+          "INNCORRECT_PASSWORD"
+        );
+      }
+    },
+    async createPost(_, { inputPost }) {
+      const { title, content, author, createdAt } = inputPost;
+      const newPost = new Post({
+        title:title,
+        content:content,
+        createdAt:createdAt,
+        author:author
+      })
+
+      const createdPost = await newPost.save();
+
+      return {
+        id:createdPost._id,
+      ...createdPost._doc}
     },
   },
 };

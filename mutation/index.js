@@ -34,16 +34,31 @@ exports.typeDefs = gql`
   }
 
   type User {
-    fullName: String!
-    email: String!
-    password: String!
+    id: ID
+    fullName: String
+    email: String
+    password: String
     confirmPassword: String
     sex: String
     ages: Int
-    createdAt:String
+    createdAt: String
+    token: String
+  }
+  type Post {
+    id:ID
+    title: String!
+    content: String!
+    author: String!
+    createdAt: String
+  }
+  input PostInput {
+    title: String!
+    content: String!
+    author: String!
+    createdAt: String
   }
 
-  input UserInput{
+  input UserInput {
     fullName: String!
     email: String!
     password: String!
@@ -51,7 +66,7 @@ exports.typeDefs = gql`
     sex: String
     ages: Int
   }
-  input UpdateUserInput{
+  input UpdateUserInput {
     fullName: String!
     email: String!
     password: String!
@@ -59,9 +74,9 @@ exports.typeDefs = gql`
     sex: String
     ages: Int
   }
-  input UserLoginInput{
-    email:String
-    password:String
+  input UserLoginInput {
+    email: String
+    password: String
   }
 
   type Query {
@@ -70,7 +85,10 @@ exports.typeDefs = gql`
     getOneMessage(ID: ID!): Message!
     getMessages(numberOfMessages: Int): [Message]
     getAllUsers(numberOfUsers: Int): [User!]!
-    getOneUser(ID:ID):User!
+    getOneUser(ID: ID!): User!
+
+    getAllPosts: [Post!]!
+    getOnePost(ID:ID):Post!
   }
 
   type Mutation {
@@ -80,9 +98,11 @@ exports.typeDefs = gql`
     createMessage(messageInputFromUser: MessageInput): Message!
     deleteMessage(ID: ID!): Boolean
     updateMessage(ID: ID, inputMessage: UpdateMessage): Message!
-    createNewUser(userInput:UserInput):User!
-    deleteUser(ID:ID):Boolean!
-    updateUser(ID:ID, UserInput:UpdateUserInput):Boolean!
-    userLogin(userInput:UserLoginInput):User!
+    createNewUser(userInput: UserInput): User!
+    deleteUser(ID: ID): Boolean!
+    updateUser(ID: ID, UserInput: UpdateUserInput): Boolean!
+    userLogin(userInput: UserLoginInput): User
+
+    createPost(inputPost: PostInput): Post
   }
 `;
